@@ -35,7 +35,7 @@ pub struct TlsConfig<'a> {
     certificates: crate::Certificates<'a>,
 
     /// Will use hardware acceleration on the ESP32 if it contains the RSA peripheral.
-    rsa: Option<&'a mut esp_mbedtls::Rsa<'a>>,
+    rsa: Option<&'a mut esp_mbedtls::hal::peripherals::RSA>,
 }
 
 /// Type for TLS configuration of HTTP client.
@@ -73,7 +73,7 @@ impl<'a> TlsConfig<'a> {
     pub fn new(
         version: crate::TlsVersion,
         certificates: crate::Certificates<'a>,
-        rsa: Option<&'a mut esp_mbedtls::Rsa<'a>>,
+        rsa: Option<&'a mut esp_mbedtls::hal::peripherals::RSA>,
     ) -> Self {
         Self {
             version,
@@ -136,12 +136,9 @@ where
                     esp_mbedtls::Mode::Client,
                     tls.version,
                     tls.certificates,
-                    // Create a inner Some(&mut Rsa) because Rsa doesn't implement Copy
-                    tls.rsa.as_mut().map(|inner| inner as &mut esp_mbedtls::Rsa),
-                )?
-                .connect()
-                .await?;
-                Ok(HttpConnection::Tls(session))
+                )?;
+
+                Ok(HttpConnection::Tls(session.connect().await?))
             } else {
                 Ok(HttpConnection::Plain(conn))
             }
@@ -220,7 +217,7 @@ where
     Plain(C),
     PlainBuffered(BufferedWrite<'conn, C>),
     #[cfg(feature = "esp-mbedtls")]
-    Tls(esp_mbedtls::asynch::AsyncConnectedSession<C, 4096>),
+    Tls(esp_mbedtls::asynch::AsyncConnectedSession<C, 2048>),
     #[cfg(feature = "embedded-tls")]
     Tls(embedded_tls::TlsConnection<'conn, C, embedded_tls::Aes128GcmSha256>),
     #[cfg(all(not(feature = "embedded-tls"), not(feature = "esp-mbedtls")))]
