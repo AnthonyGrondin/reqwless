@@ -6,11 +6,10 @@ use crate::request::*;
 use crate::response::*;
 use crate::Error;
 use buffered_io::asynch::BufferedWrite;
-use core::net::SocketAddr;
 use embedded_io::Error as _;
 use embedded_io::ErrorType;
 use embedded_io_async::{Read, Write};
-use embedded_nal_async::{Dns, TcpConnect};
+use embedded_nal_async::{Dns, SocketAddr, TcpConnect};
 use nourl::{Url, UrlScheme};
 
 /// An async HTTP client that can establish a TCP connection and perform

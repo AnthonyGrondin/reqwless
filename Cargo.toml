@@ -17,7 +17,7 @@ exclude = [".github"]
 buffered-io = { version = "0.5.4" }
 embedded-io = { version = "0.6" }
 embedded-io-async = { version = "0.6" }
-embedded-nal-async = "0.8.0"
+embedded-nal-async = "0.7.0"
 httparse = { version = "1.8.0", default-features = false }
 heapless = "0.8"
 hex = { version = "0.4", default-features = false }
