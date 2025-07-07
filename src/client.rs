@@ -33,7 +33,7 @@ pub struct TlsConfig<'a, const RX_SIZE: usize = 4096, const TX_SIZE: usize = 409
     version: crate::TlsVersion,
 
     /// Client certificates. See [esp_mbedtls::Certificates]
-    certificates: crate::Certificates<'a>,
+    certificates: &'a crate::Certificates<'a>,
 
     /// A reference to instance of the MbedTLS library.
     tls_reference: esp_mbedtls::TlsReference<'a>,
@@ -73,7 +73,7 @@ impl<'a> TlsConfig<'a> {
 impl<'a, const RX_SIZE: usize, const TX_SIZE: usize> TlsConfig<'a, RX_SIZE, TX_SIZE> {
     pub fn new(
         version: crate::TlsVersion,
-        certificates: crate::Certificates<'a>,
+        certificates: &'a crate::Certificates<'a>,
         tls_reference: crate::TlsReference<'a>,
     ) -> Self {
         Self {
@@ -135,10 +135,12 @@ where
                 servername.push(0);
                 let mut session = esp_mbedtls::asynch::Session::new(
                     conn,
-                    esp_mbedtls::Mode::Client {
-                        servername: unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(&servername) },
-                    },
-                    tls.version,
+                    esp_mbedtls::SessionConfig::new(
+                        esp_mbedtls::Mode::Client {
+                            servername: unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(&servername) },
+                        },
+                        tls.version,
+                    ),
                     tls.certificates,
                     tls.tls_reference,
                 )?;
