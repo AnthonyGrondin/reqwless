@@ -33,7 +33,7 @@ pub struct TlsConfig<'a, const RX_SIZE: usize = 4096, const TX_SIZE: usize = 409
     version: crate::TlsVersion,
 
     /// Client certificates. See [esp_mbedtls::Certificates]
-    certificates: &'a crate::Certificates<'a>,
+    certificates: crate::Certificates<'a>,
 
     /// A reference to instance of the MbedTLS library.
     tls_reference: esp_mbedtls::TlsReference<'a>,
@@ -73,7 +73,7 @@ impl<'a> TlsConfig<'a> {
 impl<'a, const RX_SIZE: usize, const TX_SIZE: usize> TlsConfig<'a, RX_SIZE, TX_SIZE> {
     pub fn new(
         version: crate::TlsVersion,
-        certificates: &'a crate::Certificates<'a>,
+        certificates: crate::Certificates<'a>,
         tls_reference: crate::TlsReference<'a>,
     ) -> Self {
         Self {
